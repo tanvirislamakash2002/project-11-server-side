@@ -2,7 +2,7 @@ const express = require('express');
 require('dotenv').config()
 const cors= require('cors')
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const port = process.env.PORT || 3000
 const app = express()
@@ -33,6 +33,20 @@ async function run() {
         const articleData = req.body;
         const result =await articlesCollection.insertOne(articleData)
         res.send(result)
+    })
+
+    app.get('/all-articles', async(req, res)=>{
+        const allArticles = await articlesCollection.find().toArray()
+        // console.log(allArticles)
+        res.send(allArticles)
+    })
+
+    app.get('/all-articles/:id', async(req, res)=>{
+        const {id} =req.params;
+        const  query = {_id: new ObjectId(id)}
+        const article = await articlesCollection.findOne(query)
+        console.log(article)
+        res.send(article)
     })
 
     // Connect the client to the server	(optional starting in v4.7)
