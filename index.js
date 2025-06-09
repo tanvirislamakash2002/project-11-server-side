@@ -49,6 +49,21 @@ async function run() {
         res.send(article)
     })
 
+    app.get('/my-articles/:email', async(req, res)=>{
+        const {email} =req.params;
+        const  query = {authorEmail: email}
+        const article = await articlesCollection.find(query).toArray()
+        console.log(article)
+        res.send(article)
+    })
+
+    app.delete('/dlt-my-article/:id', async(req, res)=>{
+        const {id} = req.params
+        const  query = {_id: new ObjectId(id)}
+        const result = await articlesCollection.deleteOne(query)
+        res.send(result)
+    })
+
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
