@@ -79,6 +79,30 @@ async function run() {
             // console.log(updateData)
         })
 
+        // like method
+        app.patch('/like/:id', async(req, res)=>{
+            const id = req.params.id
+            const {authorEmail} = req.body
+            const query = {_id:new ObjectId(id)}
+            const article = await articlesCollection.findOne(query)
+            // console.log(id, authorEmail, article)
+            const alreadyLiked = article?.likedBy?.includes(authorEmail)
+            const updateDoc = alreadyLiked?{
+                $pull:{
+                    likedBy:authorEmail
+                }
+            }:{
+                $addToSet:{
+                    likedBy:authorEmail
+                }
+            }
+            const result = await articlesCollection.updateOne(query, updateDoc)
+            res.send({
+                message:alreadyLiked?'Dislike Successful':'Like Successful',
+                liked:!alreadyLiked
+            })
+        })
+
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
         // Send a ping to confirm a successful connection
