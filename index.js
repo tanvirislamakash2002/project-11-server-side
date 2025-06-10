@@ -80,27 +80,41 @@ async function run() {
         })
 
         // like method
-        app.patch('/like/:id', async(req, res)=>{
+        app.patch('/like/:id', async (req, res) => {
             const id = req.params.id
-            const {authorEmail} = req.body
-            const query = {_id:new ObjectId(id)}
+            const { authorEmail } = req.body
+            const query = { _id: new ObjectId(id) }
             const article = await articlesCollection.findOne(query)
             // console.log(id, authorEmail, article)
             const alreadyLiked = article?.likedBy?.includes(authorEmail)
-            const updateDoc = alreadyLiked?{
-                $pull:{
-                    likedBy:authorEmail
+            const updateDoc = alreadyLiked ? {
+                $pull: {
+                    likedBy: authorEmail
                 }
-            }:{
-                $addToSet:{
-                    likedBy:authorEmail
+            } : {
+                $addToSet: {
+                    likedBy: authorEmail
                 }
             }
             const result = await articlesCollection.updateOne(query, updateDoc)
             res.send({
-                message:alreadyLiked?'Dislike Successful':'Like Successful',
-                liked:!alreadyLiked
+                message: alreadyLiked ? 'Dislike Successful' : 'Like Successful',
+                liked: !alreadyLiked
             })
+        })
+
+        // comment management starts here 
+        app.post('/comment-article', async (req, res) => {
+            const commentData = req.body;
+            const result = await commentsCollection.insertOne(commentData)
+            res.send(result)
+        })
+            app.get('/article-comments/:id', async (req, res) => {
+            const { id } = req.params;
+            const query = { article_id: id }
+            const comments = await commentsCollection.find(query).toArray()
+            console.log(comments)
+            res.send(comments)
         })
 
         // Connect the client to the server	(optional starting in v4.7)
