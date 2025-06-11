@@ -67,6 +67,13 @@ async function run() {
             res.send(article)
         })
 
+        app.get('/filter-by-category/:category', async (req, res) => {
+            const  {category}  = req.params;
+            const query = { category }
+            const article = await articlesCollection.find(query).toArray()
+            res.send(article)
+        })
+
         // delete and update my article
         app.delete('/dlt-my-article/:id', async (req, res) => {
             const { id } = req.params
