@@ -29,6 +29,16 @@ async function run() {
         const articlesCollection = database.collection('articles-collection')
         const commentsCollection = database.collection('comments-collection')
 
+        app.get('/recent-articles', async(req, res)=>{
+            try{
+                const query  = await articlesCollection.find().sort({_id:-1}).limit(6).toArray()
+                res.send(query)
+            }
+            catch(error){
+                console.log(error)
+            }
+        })
+
         app.post('/post-article', async (req, res) => {
             const articleData = req.body;
             const result = await articlesCollection.insertOne(articleData)
