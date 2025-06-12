@@ -6,6 +6,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const port = process.env.PORT || 3000
 const app = express()
+const jwt = require('jsonwebtoken')
 
 // middleware
 app.use(cors())
@@ -29,12 +30,21 @@ async function run() {
         const articlesCollection = database.collection('articles-collection')
         const commentsCollection = database.collection('comments-collection')
 
-        app.get('/recent-articles', async(req, res)=>{
-            try{
-                const query  = await articlesCollection.find().sort({_id:-1}).limit(6).toArray()
+        // jwt tokens api
+        app.post('/jwt', async (req, res) => {
+            const user = { email: req.body.email }
+            const token = jwt.sign(user, process.env.JWT_SECRET_KEY, {
+                expiresIn: '7d'
+            })
+            res.send({ token, message: 'JWT Created Successfully!' })
+        })
+
+        app.get('/recent-articles', async (req, res) => {
+            try {
+                const query = await articlesCollection.find().sort({ _id: -1 }).limit(6).toArray()
                 res.send(query)
             }
-            catch(error){
+            catch (error) {
                 console.log(error)
             }
         })
@@ -55,20 +65,31 @@ async function run() {
             const { id } = req.params;
             const query = { _id: new ObjectId(id) }
             const article = await articlesCollection.findOne(query)
-            console.log(article)
             res.send(article)
         })
 
         app.get('/my-articles/:email', async (req, res) => {
+            const token = req?.headers?.authorization?.split(' ')[1]
+            if (token) {
+                jwt.verify(token, process.env.JWT_SECRET_KEY, (error, decoded) => {
+                    if (error) {
+                        console.log('=======>', error)
+                    }
+                    console.log(decoded)
+                })
+            }
+            if(!token){
+                return res.send({message: 'you do not have permission to view the data'})
+            }
+
             const { email } = req.params;
             const query = { authorEmail: email }
             const article = await articlesCollection.find(query).toArray()
-            console.log(article)
             res.send(article)
         })
 
         app.get('/filter-by-category/:category', async (req, res) => {
-            const  {category}  = req.params;
+            const { category } = req.params;
             const query = { category }
             const article = await articlesCollection.find(query).toArray()
             res.send(article)
@@ -126,11 +147,10 @@ async function run() {
             const result = await commentsCollection.insertOne(commentData)
             res.send(result)
         })
-            app.get('/article-comments/:id', async (req, res) => {
+        app.get('/article-comments/:id', async (req, res) => {
             const { id } = req.params;
             const query = { article_id: id }
             const comments = await commentsCollection.find(query).toArray()
-            console.log(comments)
             res.send(comments)
         })
 
