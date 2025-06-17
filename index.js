@@ -12,6 +12,33 @@ const jwt = require('jsonwebtoken')
 app.use(cors())
 app.use(express.json())
 
+// verify token
+const verifyJWT = (req, res, next) => {
+    const token = req?.headers?.authorization?.split(' ')[1]
+    if (!token) {
+        return res.status(401).send({ message: 'Unauthorize Access!!' })
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET_KEY, (error, decoded) => {
+        if (error) {
+            console.log(error)
+            return res.status(401).send({ message: 'Unauthorize Access!' })
+        }
+        // console.log(decoded)
+        req.decoded = decoded
+    })
+
+    next()
+}
+//verify email
+const verifyTokenEmail = (req, res, next) => {
+    if (req.params.email !== req.decoded.email) {
+        return res.status(403).send({ message: 'you do not have permission to view the data!' })
+    }
+
+    next()
+}
+
 const uri = process.env.MONGODB_URI;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -68,19 +95,7 @@ async function run() {
             res.send(article)
         })
 
-        app.get('/my-articles/:email', async (req, res) => {
-            const token = req?.headers?.authorization?.split(' ')[1]
-            if (token) {
-                jwt.verify(token, process.env.JWT_SECRET_KEY, (error, decoded) => {
-                    if (error) {
-                        console.log('=======>', error)
-                    }
-                    console.log(decoded)
-                })
-            }
-            if(!token){
-                return res.send({message: 'you do not have permission to view the data'})
-            }
+        app.get('/my-articles/:email', verifyJWT, verifyTokenEmail, async (req, res) => {
 
             const { email } = req.params;
             const query = { authorEmail: email }
@@ -114,7 +129,7 @@ async function run() {
             const result = await articlesCollection.updateOne(query, updateDoc, options)
             res.send(result)
             // res.send(updateData)
-            // console.log(updateData)
+            // console.log(updateDoc)
         })
 
         // like method
