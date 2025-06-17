@@ -6,7 +6,7 @@ Readora a knowledge shearing website's server site code.
 It is a knowledge shearing website's server site code where people can exchanging their knowledge. Here people can publish their knowledge as articles. they can see each others articles and gain knowledge.
 
 # Live URL:
-https://ph-a11-server.vercel.app/
+https://ph-b11-a11.web.app/
 
 # Key features:
 people can post an article. and see other persons articles. They can like others posted articles they can give their opinion on those posted articles. everyone can see that comment.
