@@ -16,13 +16,13 @@ app.use(express.json())
 const verifyJWT = (req, res, next) => {
     const token = req?.headers?.authorization?.split(' ')[1]
     if (!token) {
-        return res.status(401).send({ message: 'Unauthorize Access!!' })
+        return res.status(401).send({ message: 'Unauthorize Access! token missing!' })
     }
 
     jwt.verify(token, process.env.JWT_SECRET_KEY, (error, decoded) => {
         if (error) {
             console.log(error)
-            return res.status(401).send({ message: 'Unauthorize Access!' })
+            return res.status(401).send({ message: 'Unauthorize Access! invalid token!' })
         }
         // console.log(decoded)
         req.decoded = decoded
@@ -183,9 +183,10 @@ async function run() {
 run().catch(console.dir);
 
 app.get('/', (req, res) => {
-    res.send('a new era of knowledge begun')
+    res.send('ph a11 server ok!')
 })
 
 app.listen(port, () => {
     console.log('server in on the go')
 })
+
