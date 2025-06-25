@@ -1,6 +1,6 @@
 
 # Project name:
-Readora a knowledge shearing website's server site code.
+Readora a knowledge shearing website's server site code..
 
 # Purpose:
 It is a knowledge shearing website's server site code where people can exchanging their knowledge. Here people can publish their knowledge as articles. they can see each others articles and gain knowledge.
